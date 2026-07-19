@@ -151,23 +151,28 @@
 					</header>
 					<div class="row">
 						<div class="col-12">
-							<form method="post" action="#">
+							<form id="contact-form" method="post" action="https://api.web3forms.com/submit">
+								<!-- Web3Forms -->
+								<input type="hidden" name="access_key" value="1eb3f5c9-7707-43c7-b4ec-0c7594ea0498" />
+								<input type="hidden" name="subject" value="Nova mensagem do site - Jocilé" />
+								<input type="checkbox" name="botcheck" id="botcheck" style="display:none;" />
 								<div class="row">
 									<div class="col-6 col-12-small">
-										<input type="text" name="name" id="name" placeholder="Nome" />
+										<input type="text" name="name" id="name" placeholder="Nome" required />
 									</div>
 									<div class="col-6 col-12-small">
-										<input type="text" name="email" id="email" placeholder="Email" />
+										<input type="email" name="email" id="email" placeholder="Email" required />
 									</div>
 									<div class="col-12">
-										<input type="text" name="subject" id="subject" placeholder="Assunto" />
+										<input type="text" name="subject_field" id="subject_field" placeholder="Assunto" />
 									</div>
 									<div class="col-12">
-										<textarea name="message" id="message" placeholder="Mensagem"></textarea>
+										<textarea name="message" id="message" placeholder="Mensagem" required></textarea>
 									</div>
 									<div class="col-12">
+										<div id="form-result" style="display:none; margin-bottom:1em; padding:1em; border-radius:4px;"></div>
 										<ul class="actions">
-											<li><input type="submit" value="Enviar" /></li>
+											<li><input type="submit" id="submit-btn" value="Enviar" /></li>
 											<li><input type="reset" value="Limpar" class="alt" /></li>
 										</ul>
 									</div>
@@ -215,6 +220,51 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+
+		<!-- Formulário de Contato - Web3Forms -->
+			<script>
+				document.getElementById('contact-form').addEventListener('submit', function(e) {
+					e.preventDefault();
+
+					var submitBtn = document.getElementById('submit-btn');
+					var resultDiv = document.getElementById('form-result');
+
+					submitBtn.value = 'Enviando...';
+					submitBtn.disabled = true;
+					resultDiv.style.display = 'none';
+
+					var formData = new FormData(this);
+
+					fetch('https://api.web3forms.com/submit', {
+						method: 'POST',
+						body: formData
+					})
+					.then(function(response) { return response.json(); })
+					.then(function(data) {
+						resultDiv.style.display = 'block';
+						if (data.success) {
+							resultDiv.style.background = '#2d6a4f';
+							resultDiv.style.color = '#d8f3dc';
+							resultDiv.innerHTML = '&#10003; Mensagem enviada com sucesso! Em breve entrarei em contato.';
+							document.getElementById('contact-form').reset();
+						} else {
+							resultDiv.style.background = '#7b2d00';
+							resultDiv.style.color = '#ffd6c0';
+							resultDiv.innerHTML = '&#10007; Ocorreu um erro ao enviar. Por favor, tente novamente.';
+						}
+						submitBtn.value = 'Enviar';
+						submitBtn.disabled = false;
+					})
+					.catch(function() {
+						resultDiv.style.display = 'block';
+						resultDiv.style.background = '#7b2d00';
+						resultDiv.style.color = '#ffd6c0';
+						resultDiv.innerHTML = '&#10007; Erro de conexão. Verifique sua internet e tente novamente.';
+						submitBtn.value = 'Enviar';
+						submitBtn.disabled = false;
+					});
+				});
+			</script>
 
 	</body>
 </html>
